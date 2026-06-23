@@ -7,7 +7,7 @@ const HeroSection = () => {
         
         {/* Main Tagline */}
         <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-900 tracking-tight">
-          Aapka Sahayak: <span className="text-yellow-600 block sm:inline">Ghar, Factory aur Raste Ka.</span>
+          VSetu: <span className="text-yellow-600 block sm:inline">Ghar, Factory aur Raste Ka.</span>
         </h1>
         
         {/* Sub-heading */}

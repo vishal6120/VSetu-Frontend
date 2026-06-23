@@ -1,84 +1,194 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const LoginPage = () => {
+  const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  
+  // step 1 = Phone Number mangna, step 2 = OTP mangna
+  const [step, setStep] = useState(1); 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // Page ko refresh hone se rokne ke liye
-    setError('');
+  // 👇 NAYE STATES: Screen par dynamic OTP rokne aur alert dikhane ke liye 👇
+  const [receivedOtp, setReceivedOtp] = useState(""); 
+  const [showOtpAlert, setShowOtpAlert] = useState(false);
 
-    try {
-      // FastAPI ko login ke liye JSON nahi, form data chahiye hota hai
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
+  // OTP Bhejne ka function (Ab yeh backend se baat karega!)
+  const handleSendOTP = async (e) => {
+    e.preventDefault();
+    if (phoneNumber.length === 10) {
+      try {
+        // Hum kya kar rahe hain: Backend ke login endpoint ko call kar rahe hain
+        const response = await fetch("http://localhost:8000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username: phoneNumber, password: "no-password-needed" }) // Username mein phone bhej rahe hain
+        });
 
-      const response = await fetch("https://sahayak-backend-bxl1.onrender.com/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formData,
-      });
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Backend se aaya naya random OTP save karo aur alert chalao
+          setReceivedOtp(data.screen_otp);
+          setShowOtpAlert(true);
+          
+          // Token aur role ko temporary pehle hi save kar lete hain
+          localStorage.setItem('token', data.access_token);
+          localStorage.setItem('role', data.role);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Token (Digital Pass) ko LocalStorage (Browser ki tijori) mein save karo
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("role", data.role);
-        
-        // Role padh kar sahi dashboard par bhej do (Traffic Police logic)
-        if (data.role === 'superadmin') {
-          navigate('/superadmin');
-        } else if (data.role === 'admin') {
-          navigate('/admin');
+          console.log(`OTP received from backend: ${data.screen_otp}`);
+          setStep(2); // Agle step (OTP input) par le jao
         } else {
-          navigate('/technician');
+          const errData = await response.json();
+          alert(errData.detail || "Yeh number ya username registered nahi hai!");
         }
-      } else {
-        // Agar password galat hai toh error dikhao
-        setError(data.detail || "Login Fail ho gaya!");
+      } catch (error) {
+        console.error("Backend Error:", error);
+        alert("Backend chal raha hai ya nahi ek baar terminal mein check karein!");
       }
-    } catch (err) {
-      setError("Server se connect nahi ho paya. Backend check karein!");
+    } else {
+      alert("Kripaya sahi 10-digit ka mobile number daalein.");
+    }
+  };
+
+  // OTP Verify karne ka function
+  const handleVerifyOTP = (e) => {
+    e.preventDefault();
+    
+    // 👇 CHANGER: Ab fixed '1234' nahi, backend se aaye hue 'receivedOtp' se match karenge!
+    if (otp === receivedOtp) {
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userPhone', phoneNumber);
+      localStorage.setItem('userName', name);
+      
+      const userRole = localStorage.getItem('role');
+
+      // Role ke hisaab se sahi room (dashboard) par bhejo
+      if (userRole === 'superadmin') {
+        navigate('/superadmin'); // Super Admin ke liye
+      } else if (userRole === 'admin') {
+        navigate('/admin'); // Manager ke liye
+      } else {
+        navigate('/'); // Normal Customer ke liye
+      }
+
+    } else {
+      alert(`Galat OTP! Kripaya screen par dikh raha '${receivedOtp}' try karein.`);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '80px auto', padding: '30px', border: '1px solid #e0e0e0', borderRadius: '10px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ color: '#333' }}>Aapka Sahayak 🔐</h2>
-      <p style={{ color: '#666', marginBottom: '20px' }}>Staff & Admin Login</p>
-      
-      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
-      
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <input 
-          type="text" 
-          placeholder="Username" 
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ padding: '12px', fontSize: '16px', borderRadius: '5px', border: '1px solid #ccc' }}
-          required 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: '12px', fontSize: '16px', borderRadius: '5px', border: '1px solid #ccc' }}
-          required 
-        />
-        <button type="submit" style={{ padding: '12px', backgroundColor: '#1565c0', color: 'white', fontSize: '16px', border: 'none', cursor: 'pointer', borderRadius: '5px', fontWeight: 'bold' }}>
-          Secure Login
-        </button>
-      </form>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+        
+        {/* Logo / Branding */}
+        <div className="text-center mb-8">
+          <div className="font-extrabold text-3xl text-black flex items-center justify-center gap-2 mb-2">
+            <span className="bg-black text-white px-3 py-1.5 rounded-lg">VS</span>
+            VSetu
+          </div>
+          <p className="text-gray-500 font-medium">Log in ya Sign up karein</p>
+        </div>
+
+        {/* 👇 NAYA: Green Box Code Jo Screen Par OTP Dikhayega (Sirf Step 2 me dikhega) 👇 */}
+        {showOtpAlert && step === 2 && (
+          <div className="bg-green-50 border border-green-200 p-4 rounded-xl mb-6 text-center shadow-sm">
+            <p className="text-green-700 text-xs font-bold uppercase tracking-wider mb-1">
+              🚀 [VSetu Safety Check] Aapka Login OTP:
+            </p>
+            <h2 className="text-3xl font-black text-green-800 tracking-[0.5em] pl-[0.5em]">
+              {receivedOtp}
+            </h2>
+            <p className="text-gray-500 text-[11px] mt-1">
+              Kripya yeh code neeche daal kar enter karein.
+            </p>
+          </div>
+        )}
+
+        {/* STEP 1: Phone Number Input */}
+        {step === 1 && (
+          <form onSubmit={handleSendOTP} className="space-y-6">
+            <div>
+              <label className="block mb-2 font-bold text-gray-700">Aapka Naam</label>
+              <input 
+                type="text" 
+                value={name}
+                onChange={(e) => setName(e.target.value)} 
+                required 
+                className="w-full p-3.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black font-bold text-lg" 
+                placeholder="Pura naam likhein" 
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2 font-bold text-gray-700">Phone Number</label>
+              <div className="flex relative">
+                <span className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-bold">
+                  +91
+                </span>
+                <input 
+                  type="tel" 
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} 
+                  maxLength="10"
+                  required 
+                  className="flex-1 p-3.5 rounded-r-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black font-bold text-lg tracking-wide" 
+                  placeholder="98765 43210" 
+                />
+              </div>
+            </div>
+            <button 
+              type="submit" 
+              className="w-full py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all shadow-md active:scale-95"
+            >
+              Get OTP
+            </button>
+          </form>
+        )}
+
+        {/* STEP 2: OTP Input */}
+        {step === 2 && (
+          <form onSubmit={handleVerifyOTP} className="space-y-6">
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-600 font-medium">OTP is number par bheja gaya hai:</p>
+              <p className="font-bold text-black mt-1">+91 {phoneNumber}</p>
+              <button 
+                type="button" 
+                onClick={() => { setStep(1); setShowOtpAlert(false); }} 
+                className="text-blue-600 text-sm font-bold mt-2 hover:underline"
+              >
+                Number badlein?
+              </button>
+            </div>
+
+            <div>
+              <label className="block mb-2 font-bold text-gray-700 text-center">4-Digit OTP Darj Karein</label>
+              <input 
+                type="text" 
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} 
+                maxLength="4"
+                required 
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black font-bold text-2xl tracking-[1em] text-center" 
+                placeholder="••••" 
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              className="w-full py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all shadow-md active:scale-95"
+            >
+              Login Karein
+            </button>
+          </form>
+        )}
+
+      </div>
     </div>
   );
-}
+};
 
 export default LoginPage;

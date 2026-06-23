@@ -1,61 +1,56 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import TechnicianDashboard from './pages/TechnicianDashboard';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import MyBookings from './pages/MyBookings'; 
 import BookingPage from './pages/BookingPage';
 import AdminDashboard from './pages/AdminDashboard';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import LoginPage from './pages/LoginPage';
+import TechnicianDashboard from './pages/TechnicianDashboard';
 import ProtectedRoute from './ProtectedRoute';
-
+import Footer from './components/Footer'; 
 
 function App() {
   return (
-  <BrowserRouter>
-    <nav style={{ padding: '15px', backgroundColor: '#333', color: 'white' }}>
-      {/* Aapke purane Navbar links yahan hain */}
-      <Link to="/" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>🏠 Customer Home</Link>
-      <Link to="/technician" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>🛠️ Technician Login</Link>
-      <Link to="/admin" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>👑 Manager Dashboard</Link>
-      <Link to="/superadmin" style={{ color: '#ffeb3b', textDecoration: 'none', fontWeight: 'bold' }}>🚀 Super Admin</Link>
-      <Link to="/login" style={{ color: '#00e676', textDecoration: 'none', fontSize: '18px', marginLeft: '20px', fontWeight: 'bold' }}>🔐 Staff Login</Link>
-    </nav>
+    <BrowserRouter>
+      {/* MALIK NOTE: Humne wo purana kaala Navbar yahan se HATA DIYA hai! 
+        Ab customer ko sirf sidha VSetu jaisa Booking Page dikhega.
+      */}
 
-    {/* 👇 YEH HAI WOH MAIN DABBA (Routes) 👇 */}
-    <Routes>
-      {/* Public Pages */}
-      <Route path="/" element={<BookingPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Routes>
+        {/* 1. PUBLIC ROUTES (Sabke liye khule hain - Window Shopping) */}
+        <Route path="/" element={<BookingPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-      {/* Secure Pages (Bouncer ke peeche) */}
-      <Route path="/technician" element={
-        <ProtectedRoute allowedRole="technician">
-          <TechnicianDashboard />
-        </ProtectedRoute>
-      } />
+        {/* 2. SECURE ROUTES (Guard ke peechhe) */}
+        
+        {/* Customer ki Personal Bookings */}
+        <Route 
+          path="/my-bookings" 
+          element={
+            <ProtectedRoute allowedRole="customer">
+              <MyBookings />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Admin/Manager ka Rasta */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* 3. TECHNICIAN KA RASTA (Isme Login bhi hai, isliye Guard bahar se hata diya) */}
+        <Route 
+          path="/technician" 
+          element={<TechnicianDashboard />} 
+        />
 
-      <Route path="/admin" element={
-        <ProtectedRoute allowedRole="admin">
-          <AdminDashboard />
-        </ProtectedRoute>
-      } />
-
-      <Route path="/superadmin" element={
-        <ProtectedRoute allowedRole="superadmin">
-          <SuperAdminDashboard />
-        </ProtectedRoute>
-      } />
-
-      {/* 404 Error Page */}
-      <Route path="*" element={
-        <div style={{textAlign: 'center', marginTop: '50px', color: 'red'}}>
-          <h3>404 - Rasta Bhatak Gaye! 🛑</h3>
-          <p>Yeh page exist nahi karta. Kripya upar diye gaye links ka use karein. 👑</p>
-        </div>
-      } />
-    </Routes>
-    {/* 👆 DABBA BAND 👆 */}
-
-  </BrowserRouter>
-);
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
 }
 
 export default App;

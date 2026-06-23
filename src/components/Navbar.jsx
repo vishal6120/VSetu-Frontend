@@ -10,7 +10,7 @@ const Navbar = () => {
           {/* Left Side: Brand Name */}
           <div className="flex-shrink-0 flex items-center">
             <span className="font-bold text-2xl tracking-wider text-yellow-400">
-              Aapka Sahayak
+              VSetu
             </span>
           </div>
 

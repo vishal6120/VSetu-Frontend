@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function SuperAdminDashboard() {
   const [stats, setStats] = useState({ total_revenue: 0, total_commission: 0, total_jobs: 0 });
+  const navigate = useNavigate(); // Navigation ke liye hook
 
- useEffect(() => {
+  useEffect(() => {
     const fetchStats = async () => {
       try {
         // 1. Apni tijori (LocalStorage) se Token nikalo
         const token = localStorage.getItem("token");
 
+        // Agar token hi nahi hai, toh seedha login par bhejo
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
         // 2. Fetch request mein us token ko as a 'Bearer' (Pass) bhej do
-        const response = await fetch("https://sahayak-backend-bxl1.onrender.com/api/superadmin/stats", {
+        const response = await fetch("http://localhost:8000/api/superadmin/stats", {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`, // Yahan hum Bouncer ko Pass dikha rahe hain
@@ -24,18 +32,46 @@ function SuperAdminDashboard() {
           setStats(data);
         } else {
           console.error("⛔ Bouncer ne entry nahi di! Token galat ya expire ho gaya.");
+          // Token galat hai toh usko delete karke bahar phek do
+          localStorage.removeItem("token");
+          navigate('/login'); 
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
     };
     fetchStats();
-  }, []);
+  }, [navigate]); // useEffect ko bataya ki navigate ka use kar rahe hain
+
+  // Logout Function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate('/login');
+  };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '900px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', color: '#333' }}>🚀 Super Admin (Founder) Dashboard</h2>
-      <p style={{ textAlign: 'center', color: '#666' }}>Aapka Sahayak - Real-time Business Analytics</p>
+      
+      {/* Header with Logout Button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ color: '#333' }}>🚀 Super Admin (Founder) Dashboard</h2>
+        <button 
+          onClick={handleLogout}
+          style={{ 
+            padding: '10px 20px', 
+            backgroundColor: '#d32f2f', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '5px', 
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Logout
+        </button>
+      </div>
+      
+      <p style={{ textAlign: 'left', color: '#666', marginTop: '-10px' }}>VSetu - Real-time Business Analytics</p>
 
       <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '40px' }}>
         
