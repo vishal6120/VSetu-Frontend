@@ -23,11 +23,11 @@ jobs:
           npm install
           npm run build
 
-      - name: Set up JDK 17 (Java)
+      - name: Set up JDK 21 (Java)
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
@@ -38,6 +38,7 @@ jobs:
       - name: Build Customer APK
         run: |
           npx cap sync
+          chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
           mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Customer.apk
           cd ..
@@ -51,6 +52,7 @@ jobs:
           sed -i 's/"appName": "VSetu"/"appName": "VSetu Manager"/g' capacitor.config.json
           sed -i 's/"appId": "com.vsetu.app"/"appId": "com.vsetu.manager"/g' capacitor.config.json
           npx cap sync
+          chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
           mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Manager.apk
           cd ..
@@ -64,6 +66,7 @@ jobs:
           sed -i 's/"appName": "VSetu Manager"/"appName": "VSetu Partner"/g' capacitor.config.json
           sed -i 's/"appId": "com.vsetu.manager"/"appId": "com.vsetu.partner"/g' capacitor.config.json
           npx cap sync
+          chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
           mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Technician.apk
           cd ..
