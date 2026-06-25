@@ -22,7 +22,7 @@ function TechnicianDashboard() {
     formData.append("password", password);
 
     try {
-      const response = await fetch("http://localhost:8000/api/technician/token", {
+      const response = await fetch("https://vsetu-backend.onrender.com/api/technician/token", {
         method: "POST",
         headers: { 
             "Content-Type": "application/x-www-form-urlencoded",
@@ -57,7 +57,7 @@ function TechnicianDashboard() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/technician/my-bookings", {
+      const response = await fetch("https://vsetu-backend.onrender.com/api/technician/my-bookings", {
         method: "GET",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -78,7 +78,7 @@ function TechnicianDashboard() {
 
   const handleAcceptJob = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/accept`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/accept`, {
         method: 'PUT',
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -96,7 +96,7 @@ function TechnicianDashboard() {
     if (!confirmReject) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/reject`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/reject`, {
         method: 'PUT',
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -114,7 +114,7 @@ function TechnicianDashboard() {
     if (!confirmReschedule) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/reschedule`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/reschedule`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -138,7 +138,7 @@ function TechnicianDashboard() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/complete?otp=${otp}&extra_charge=${extraCharge}`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/complete?otp=${otp}&extra_charge=${extraCharge}`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });

@@ -18,7 +18,7 @@ const MyBookings = () => {
       
       try {
         // FastAPI backend ko call lagana
-        const response = await fetch(`http://localhost:8000/api/bookings/customer/${userPhone}`);
+        const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/customer/${userPhone}`);
         if (response.ok) {
           const data = await response.json();
           setMyPastBookings(data); // Asli data state mein save kar diya

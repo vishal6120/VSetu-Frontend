@@ -20,7 +20,7 @@ const LoginPage = () => {
     if (phoneNumber.length === 10) {
       try {
         // Hum kya kar rahe hain: Backend ke login endpoint ko call kar rahe hain
-        const response = await fetch("http://localhost:8000/api/auth/login", {
+        const response = await fetch("https://vsetu-backend.onrender.com/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

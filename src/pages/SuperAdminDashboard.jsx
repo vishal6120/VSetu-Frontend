@@ -18,7 +18,7 @@ function SuperAdminDashboard() {
         }
 
         // 2. Fetch request mein us token ko as a 'Bearer' (Pass) bhej do
-        const response = await fetch("http://localhost:8000/api/superadmin/stats", {
+        const response = await fetch("https://vsetu-backend.onrender.com/api/superadmin/stats", {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`, // Yahan hum Bouncer ko Pass dikha rahe hain

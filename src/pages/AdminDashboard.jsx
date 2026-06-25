@@ -29,7 +29,7 @@ function AdminDashboard() {
   const fetchStaff = async () => {
     try {
       // YAHAN URL THEEK KIYA HAI
-      const response = await fetch("http://localhost:8000/api/technicians");
+      const response = await fetch("https://vsetu-backend.onrender.com/api/technicians");
       if(response.ok){
         const data = await response.json();
         setStaffList(data);
@@ -53,7 +53,7 @@ function AdminDashboard() {
 
     try {
       // YAHAN URL THEEK KIYA HAI
-      const response = await fetch("http://localhost:8000/api/technicians/create", {
+      const response = await fetch("https://vsetu-backend.onrender.com/api/technicians/create", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData,
@@ -81,7 +81,7 @@ function AdminDashboard() {
     if (!confirmDelete) return; // Agar 'Cancel' dabaya toh ruk jao
 
     try {
-      const response = await fetch(`http://localhost:8000/api/technicians/${id}`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/technicians/${id}`, {
         method: "DELETE",
       });
 
@@ -101,7 +101,7 @@ function AdminDashboard() {
   const fetchBookings = async () => {
     try {
       // YAHAN URL THEEK KIYA HAI
-      const response = await fetch("http://localhost:8000/api/bookings");
+      const response = await fetch("https://vsetu-backend.onrender.com/api/bookings");
       const data = await response.json();
       
       // YAHAN REVERSE WALA ERROR THEEK KIYA HAI
@@ -144,7 +144,7 @@ function AdminDashboard() {
     const techPhone = selectedTechObj ? selectedTechObj.phone : "9876543210";
 
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/assign?technician_name=${techName}&technician_phone=${techPhone}`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/assign?technician_name=${techName}&technician_phone=${techPhone}`, {
         method: 'PUT'
       });
       if (response.ok) {
@@ -165,7 +165,7 @@ function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/assign?technician_name=${newTechnicianName}`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/assign?technician_name=${newTechnicianName}`, {
         method: 'PUT',
       });
 
@@ -194,7 +194,7 @@ function AdminDashboard() {
 
     try {
       // YAHAN URL THEEK KIYA HAI
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/verify?amount=${finalAmount}`, {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/verify?amount=${finalAmount}`, {
         method: 'PUT'
       });
       if (response.ok) {
