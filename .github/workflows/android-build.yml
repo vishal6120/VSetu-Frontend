@@ -72,7 +72,7 @@ jobs:
       # 4. DOWNLOAD LINKS GENERATE KARNA
       # ---------------------------------------------
       - name: Upload All 3 APKs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VSetu-Total-APKs
           path: |
