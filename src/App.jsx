@@ -10,43 +10,30 @@ import Footer from './components/Footer';
 function App() {
   return (
     <BrowserRouter>
-      {/* MALIK NOTE: Humne wo purana kaala Navbar yahan se HATA DIYA hai! 
-        Ab customer ko sirf sidha VSetu jaisa Booking Page dikhega.
-      */}
-
       <Routes>
-        {/* 1. PUBLIC ROUTES (Sabke liye khule hain - Window Shopping) */}
         <Route path="/" element={<BookingPage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        {/* 2. SECURE ROUTES (Guard ke peechhe) */}
-        
-        {/* Customer ki Personal Bookings */}
+        {/* PROTECTED ROUTES */}
         <Route 
           path="/my-bookings" 
-          element={
-            <ProtectedRoute allowedRole="customer">
-              <MyBookings />
-            </ProtectedRoute>
-          } 
+          element={<ProtectedRoute allowedRole="customer"><MyBookings /></ProtectedRoute>} 
         />
         
-        {/* Admin/Manager ka Rasta */}
         <Route 
           path="/admin" 
+          element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} 
+        />
+        
+        {/* 👇 TECHNICIAN KA SAHI RASTA 👇 */}
+        <Route 
+          path="/technician-dashboard" 
           element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminDashboard />
+            <ProtectedRoute allowedRole="technician">
+              <TechnicianDashboard />
             </ProtectedRoute>
           } 
         />
-        
-        {/* 3. TECHNICIAN KA RASTA (Isme Login bhi hai, isliye Guard bahar se hata diya) */}
-        <Route 
-          path="/technician" 
-          element={<TechnicianDashboard />} 
-        />
-
       </Routes>
       <Footer />
     </BrowserRouter>

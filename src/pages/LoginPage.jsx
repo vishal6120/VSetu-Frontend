@@ -58,25 +58,27 @@ const LoginPage = () => {
   const handleVerifyOTP = (e) => {
     e.preventDefault();
     
-    // 👇 CHANGER: Ab fixed '1234' nahi, backend se aaye hue 'receivedOtp' se match karenge!
     if (otp === receivedOtp) {
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userPhone', phoneNumber);
       localStorage.setItem('userName', name);
       
       const userRole = localStorage.getItem('role');
+      console.log("Logged in role:", userRole); // Debug karne ke liye console mein dekhein
 
-      // Role ke hisaab se sahi room (dashboard) par bhejo
+      // 👇 Yahan Technician ka rasta add karein
       if (userRole === 'superadmin') {
-        navigate('/superadmin'); // Super Admin ke liye
+        navigate('/superadmin');
       } else if (userRole === 'admin') {
-        navigate('/admin'); // Manager ke liye
+        navigate('/admin');
+      } else if (userRole === 'technician') { // Technician check
+        navigate('/technician-dashboard'); // Sahi rasta
       } else {
-        navigate('/'); // Normal Customer ke liye
+        navigate('/'); // Customer dashboard
       }
 
     } else {
-      alert(`Galat OTP! Kripaya screen par dikh raha '${receivedOtp}' try karein.`);
+      alert(`Galat OTP!`);
     }
   };
 
