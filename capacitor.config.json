@@ -1,6 +1,6 @@
 {
-  "appId": "com.vsetu.technician",
-  "appName": "VSetu Technician",
+  "appId": "com.vsetu.app",
+  "appName": "VSetu",
   "webDir": "dist",
   "bundledWebRuntime": false
 }

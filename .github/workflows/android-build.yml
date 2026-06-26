@@ -1,84 +1,85 @@
-name: Build VSetu 3 APKs
+name: Build VSetu 2 APKs (Customer & Technician)
 
 on:
   push:
-    branches:
-      - main  # Jab aap code main branch par push karenge tab chalega
+    branches: [ "main" ] # Agar aapki branch ka naam 'master' hai toh isko master kar lein
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Source Code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: '22' # Aapke screenshot ke hisaab se Node 22
 
-      - name: Install Frontend Dependencies
+      - name: Setup Java (Android ke liye zaroori)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies & Build Web
         run: |
           npm install
           npm run build
 
-      - name: Set up JDK 21 (Java)
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '21'
+      # ----------------------------------------------------
+      # 🛠️ 1. CUSTOMER APK BANANE KA PROCESS
+      # ----------------------------------------------------
+      - name: Sync Capacitor (Customer)
+        run: npx cap sync android
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      # ---------------------------------------------
-      # 1. CUSTOMER APK BUILD
-      # ---------------------------------------------
       - name: Build Customer APK
+        working-directory: ./android
         run: |
-          npx cap sync
-          chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug
-          mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Customer.apk
-          cd ..
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-      # ---------------------------------------------
-      # 2. MANAGER APK BUILD (Smart Name Change)
-      # ---------------------------------------------
-      - name: Build Manager APK
+      - name: Save Customer APK file
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Customer.apk
+
+      # ----------------------------------------------------
+      # 🪄 2. MAGIC SHURU: GITHUB KHUD ID BADLEGA
+      # ----------------------------------------------------
+      - name: Change IDs to Technician (Auto Magic)
         run: |
-          # Android App ka naam aur package id temporarily badlo
-          sed -i 's/"appName": "VSetu"/"appName": "VSetu Manager"/g' capacitor.config.json
-          sed -i 's/"appId": "com.vsetu.app"/"appId": "com.vsetu.manager"/g' capacitor.config.json
-          npx cap sync
-          chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug
-          mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Manager.apk
-          cd ..
+          # 1. Config file mein ID badlo
+          sed -i 's/"appId": "com.vsetu.app"/"appId": "com.vsetu.technician"/g' capacitor.config.json
+          sed -i 's/"appName": "VSetu"/"appName": "VSetu Technician"/g' capacitor.config.json
+          
+          # 2. Android ke engine (build.gradle) mein ID badlo
+          sed -i 's/applicationId "com.vsetu.app"/applicationId "com.vsetu.technician"/g' android/app/build.gradle
+          
+          # 3. Android ke phone par dikhne wala naam badlo
+          sed -i 's/>VSetu</>VSetu Technician</g' android/app/src/main/res/values/strings.xml
 
-      # ---------------------------------------------
-      # 3. TECHNICIAN APK BUILD (Smart Name Change)
-      # ---------------------------------------------
+      # ----------------------------------------------------
+      # 🛠️ 3. TECHNICIAN APK BANANE KA PROCESS
+      # ----------------------------------------------------
+      - name: Sync Capacitor (Technician)
+        run: npx cap copy android
+
       - name: Build Technician APK
+        working-directory: ./android
         run: |
-          # Dobara badlo Technician ke liye
-          sed -i 's/"appName": "VSetu Manager"/"appName": "VSetu Partner"/g' capacitor.config.json
-          sed -i 's/"appId": "com.vsetu.manager"/"appId": "com.vsetu.partner"/g' capacitor.config.json
-          npx cap sync
-          chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug
-          mv app/build/outputs/apk/debug/app-debug.apk ../VSetu_Technician.apk
-          cd ..
+          ./gradlew clean  # Purana kachra saaf karo
+          ./gradlew assembleDebug
 
-      # ---------------------------------------------
-      # 4. DOWNLOAD LINKS GENERATE KARNA
-      # ---------------------------------------------
-      - name: Upload All 3 APKs
+      - name: Save Technician APK file
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Technician.apk
+
+      # ----------------------------------------------------
+      # 📥 4. DONO APKS KO DOWNLOAD KE LIYE UPLOAD KARO
+      # ----------------------------------------------------
+      - name: Upload Both APKs
         uses: actions/upload-artifact@v4
         with:
-          name: VSetu-Total-APKs
+          name: VSetu-Live-APKs
           path: |
             VSetu_Customer.apk
-            VSetu_Manager.apk
             VSetu_Technician.apk
