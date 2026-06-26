@@ -331,8 +331,7 @@ function BookingPage() {
       </div>
       {/* 👆 YAHAN TAK 👆 */}
 
-      {/* 1. TOP NAVBAR (Aapka purana code yahan se shuru) */}
-      <CustomerNavbar />
+      
       
       {/* 1. TOP NAVBAR */}
       <CustomerNavbar />
