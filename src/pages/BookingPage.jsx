@@ -210,7 +210,7 @@ useEffect(() => {
         const info = await CapacitorApp.getInfo();
         
         // Jasoos ka naya chashma (Ye batayega ki phone mein aakhir ID kya aayi hai)
-        alert("Phone mein ye ID aayi hai: " + info.id);
+        
         
         if (info.id === 'com.vsetu.technician') {
           navigate('/technician'); 
