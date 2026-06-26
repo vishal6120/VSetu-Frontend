@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import CustomerNavbar from '../components/CustomerNavbar';
+import { App as CapacitorApp } from '@capacitor/app';
 
 
 // AAPKI LIST KE HISAAB SE DATA
@@ -202,7 +203,25 @@ function BookingPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false); // <--- NAYI LINE
+     
+  useEffect(() => {
+    const checkAppIdentity = async () => {
+      try {
+        const info = await CapacitorApp.getInfo();
+        
+        // Ye alert hamein debug karne mein madad karega
+        alert("Phone ke andar App ka naam hai: [" + info.name + "]");
+        
+        if (info.name === 'VSetu Technician') {
+          navigate('/technician-dashboard'); 
+        }
+      } catch (error) {
+        console.log("Capacitor error:", error);
+      }
+    };
 
+    checkAppIdentity();
+  }, [navigate]);
  
 
 
@@ -298,6 +317,22 @@ function BookingPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-10 font-sans text-gray-800">
+
+      
+      
+      {/* 👇 NAYA TEST BUTTON YAHAN PASTE KAREIN 👇 */}
+      <div className="p-4 bg-yellow-100 border-b-4 border-yellow-400">
+        <button 
+          onClick={() => navigate('/technician-dashboard')} 
+          className="w-full p-4 bg-red-600 text-white font-black text-xl rounded-xl shadow-lg active:scale-95"
+        >
+          🚨 TEST BUTTON: Seedha Technician Page Par Jao
+        </button>
+      </div>
+      {/* 👆 YAHAN TAK 👆 */}
+
+      {/* 1. TOP NAVBAR (Aapka purana code yahan se shuru) */}
+      <CustomerNavbar />
       
       {/* 1. TOP NAVBAR */}
       <CustomerNavbar />
@@ -582,6 +617,6 @@ function BookingPage() {
 
     </div>
   );
-}
+} 
 
 export default BookingPage;
