@@ -27,7 +27,7 @@ function App() {
         
         {/* 👇 TECHNICIAN KA SAHI RASTA 👇 */}
         <Route 
-          path="/technician-dashboard" 
+          path="/technician" 
           element={
             <ProtectedRoute allowedRole="technician">
               <TechnicianDashboard />
