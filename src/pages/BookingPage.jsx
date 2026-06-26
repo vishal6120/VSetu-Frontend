@@ -213,7 +213,7 @@ function BookingPage() {
         alert("Phone ke andar App ka naam hai: [" + info.name + "]");
         
         if (info.name === 'VSetu Technician') {
-          navigate('/technician-dashboard'); 
+          navigate('/technician'); 
         }
       } catch (error) {
         console.log("Capacitor error:", error);
@@ -323,7 +323,7 @@ function BookingPage() {
       {/* 👇 NAYA TEST BUTTON YAHAN PASTE KAREIN 👇 */}
       <div className="p-4 bg-yellow-100 border-b-4 border-yellow-400">
         <button 
-          onClick={() => navigate('/technician-dashboard')} 
+          onClick={() => navigate('/technician')} 
           className="w-full p-4 bg-red-600 text-white font-black text-xl rounded-xl shadow-lg active:scale-95"
         >
           🚨 TEST BUTTON: Seedha Technician Page Par Jao

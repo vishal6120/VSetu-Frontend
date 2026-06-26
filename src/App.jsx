@@ -30,7 +30,7 @@ function App() {
           path="/technician-dashboard" 
           element={
             <ProtectedRoute allowedRole="technician">
-              <TechnicianDashboard />
+              <Technician />
             </ProtectedRoute>
           } 
         />
