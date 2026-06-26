@@ -318,18 +318,7 @@ function BookingPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-10 font-sans text-gray-800">
 
-      
-      
-      {/* 👇 NAYA TEST BUTTON YAHAN PASTE KAREIN 👇 */}
-      <div className="p-4 bg-yellow-100 border-b-4 border-yellow-400">
-        <button 
-          onClick={() => navigate('/technician')} 
-          className="w-full p-4 bg-red-600 text-white font-black text-xl rounded-xl shadow-lg active:scale-95"
-        >
-          🚨 TEST BUTTON: Seedha Technician Page Par Jao
-        </button>
-      </div>
-      {/* 👆 YAHAN TAK 👆 */}
+    
 
       
       
