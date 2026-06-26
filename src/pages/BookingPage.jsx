@@ -204,15 +204,16 @@ function BookingPage() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false); // <--- NAYI LINE
      
-  useEffect(() => {
+useEffect(() => {
     const checkAppIdentity = async () => {
       try {
         const info = await CapacitorApp.getInfo();
         
-        // Ye alert hamein debug karne mein madad karega
-        alert("Phone ke andar App ka naam hai: [" + info.name + "]");
+        // Ye alert ab aapko Name ke sath App ki ID bhi batayega
+        alert("Naam: " + info.name + "\nID: " + info.id);
         
-        if (info.name === 'VSetu Technician') {
+        // Niche 'com.vsetu.technician' ki jagah apni asli ID daalni hogi
+        if (info.id === 'com.vsetu.technician' || info.name === 'VSetu Technician') {
           navigate('/technician'); 
         }
       } catch (error) {
