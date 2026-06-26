@@ -205,24 +205,21 @@ function BookingPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false); // <--- NAYI LINE
      
 useEffect(() => {
-    const checkAppIdentity = async () => {
-      try {
-        const info = await CapacitorApp.getInfo();
-        
-        // Ye alert ab aapko Name ke sath App ki ID bhi batayega
-        alert("Naam: " + info.name + "\nID: " + info.id);
-        
-        // Niche 'com.vsetu.technician' ki jagah apni asli ID daalni hogi
-        if (info.id === 'com.vsetu.technician' || info.name === 'VSetu Technician') {
-          navigate('/technician'); 
-        }
-      } catch (error) {
-        console.log("Capacitor error:", error);
-      }
-    };
+  const checkAppIdentity = async () => {
+    try {
+      const info = await CapacitorApp.getInfo();
 
-    checkAppIdentity();
-  }, [navigate]);
+      // Asli ID check karega
+      if (info.id === 'com.vsetu.technician') {
+        navigate('/technician'); 
+      }
+    } catch (error) {
+      console.log("Capacitor error:", error);
+    }
+  };
+
+  checkAppIdentity();
+}, [navigate]);
  
 
 
