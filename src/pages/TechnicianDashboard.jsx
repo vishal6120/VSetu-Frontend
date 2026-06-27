@@ -79,20 +79,30 @@ function TechnicianDashboard() {
   };
 
   const handleAcceptJob = async (bookingId) => {
+    // 1. Loading state dikha sakte hain agar zarurat ho, par yahan direct request bhej rahe hain
     try {
       const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/accept`, {
         method: 'PUT',
         headers: { "Authorization": `Bearer ${token}` }
       });
+
       if (response.ok) {
-        alert("✅ Aapne duty accept kar li hai. Ab aap location dekh sakte hain!");
-        fetchBookings(); 
+        // 2. Pehle data refresh karein taaki UI se button gayab ho jaye
+        await fetchBookings(); 
+        
+        // 3. Phir ek chhota sa success message (User ko pata chale ki kaam ho gaya)
+        alert("✅ Duty accept ho gayi hai! Page refresh ho raha hai...");
+        
+        // 4. Page refresh ki zarurat nahi, kyunki fetchBookings() ne data update kar diya hai
+        // Alert ke baad ye apne aap state update kar dega aur UI se popup hata dega.
+      } else {
+        alert("Kuch gadbad hui, phir se koshish karein.");
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("Server error, thodi der baad try karein.");
     }
   };
-
   const handleRejectJob = async (bookingId) => {
     const confirmReject = window.confirm("Kya aap sach mein ye kaam reject karna chahte hain? Ye Manager ke paas wapas chala jayega.");
     if (!confirmReject) return;

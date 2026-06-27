@@ -305,14 +305,17 @@ useEffect(() => {
       });
 
       if (response.ok) {
-        setMessage("✅ We got your current location.");
-        setName(""); setPhone(""); setAddress(""); setServiceType("");
-      } else {
-        setMessage("❌ Kuch gadbad hai. Kripya details check karein.");
+        // 1. Popup band karo
+        setIsFormModalOpen(false); 
+        
+        // 2. Success alert dikhao
+        alert("✅ Booking confirm ho gayi hai!");
+        
+        // 3. Page ka data refresh ho jayega (agar zarurat ho toh window.location.reload() bhi daal sakte hain)
       }
+      // ...
     } catch (error) {
-      console.error("Error:", error);
-      setMessage("Server error! Backend chalu hai ya nahi check karein.");
+      // ...
     }
   };
 
