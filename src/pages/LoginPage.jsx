@@ -13,11 +13,15 @@ const LoginPage = () => {
   // 👇 NAYE STATES: Screen par dynamic OTP rokne aur alert dikhane ke liye 👇
   const [receivedOtp, setReceivedOtp] = useState(""); 
   const [showOtpAlert, setShowOtpAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // OTP Bhejne ka function (Ab yeh backend se baat karega!)
   const handleSendOTP = async (e) => {
     e.preventDefault();
     if (phoneNumber.length === 10) {
+
+      setIsLoading(true);
+
       try {
         // Hum kya kar rahe hain: Backend ke login endpoint ko call kar rahe hain
         const response = await fetch("https://vsetu-backend.onrender.com/api/auth/login", {
@@ -30,17 +34,11 @@ const LoginPage = () => {
 
         if (response.ok) {
           const data = await response.json();
-          
-          // Backend se aaya naya random OTP save karo aur alert chalao
           setReceivedOtp(data.screen_otp);
           setShowOtpAlert(true);
-          
-          // Token aur role ko temporary pehle hi save kar lete hain
           localStorage.setItem('token', data.access_token);
           localStorage.setItem('role', data.role);
-
-          console.log(`OTP received from backend: ${data.screen_otp}`);
-          setStep(2); // Agle step (OTP input) par le jao
+          setStep(2); 
         } else {
           const errData = await response.json();
           alert(errData.detail || "Yeh number ya username registered nahi hai!");
@@ -48,7 +46,10 @@ const LoginPage = () => {
       } catch (error) {
         console.error("Backend Error:", error);
         alert("Backend chal raha hai ya nahi ek baar terminal mein check karein!");
+      } finally {
+        setIsLoading(false); // 👈 NAYI LINE: Server ka jawab aate hi spinner band (try/catch ke bilkul end mein)
       }
+
     } else {
       alert("Kripaya sahi 10-digit ka mobile number daalein.");
     }
@@ -144,9 +145,23 @@ const LoginPage = () => {
             </div>
             <button 
               type="submit" 
-              className="w-full py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all shadow-md active:scale-95"
+              disabled={isLoading}
+              className={`w-full font-bold py-4 rounded-xl shadow-md flex justify-center items-center transition-all ${
+                isLoading 
+                  ? "bg-gray-600 cursor-not-allowed text-white" 
+                  : "bg-black hover:bg-gray-800 active:scale-95 text-white"
+              }`}
             >
-              Get OTP
+              {isLoading ? (
+                /* 🔄 Ghoomne wala Spinner */
+                <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              ) : (
+                /* Normal Text */
+                "Get OTP"
+              )}
             </button>
           </form>
         )}

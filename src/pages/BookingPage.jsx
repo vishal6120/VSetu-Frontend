@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import CustomerNavbar from '../components/CustomerNavbar';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Geolocation } from '@capacitor/geolocation';
 
 
 // AAPKI LIST KE HISAAB SE DATA
@@ -248,35 +249,36 @@ useEffect(() => {
     setIsFormModalOpen(true); 
   };
 
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      setMessage("❌ Aapka browser location support nahi karta.");
-      return;
-    }
-
+  const handleGetLocation = async () => {
     setIsGettingLocation(true);
-    setMessage("Location nikal rahe hain... 📍");
+    setMessage("Getting Location... 📍");
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
-        
-        setAddress((prevAddress) => prevAddress + (prevAddress ? "\n\n" : "") + "📍 Live Location: " + mapLink);
-        
-        setMessage("✅ Location successfully added Click Confirm button.");
+    try {
+      // 1. Android screen par permission ka pop-up layega
+      const permission = await Geolocation.requestPermissions();
+      
+      if (permission.location !== 'granted') {
+        setMessage("❌ Permission nahi mili. Kripya app settings mein jaa kar Location allow karein.");
         setIsGettingLocation(false);
-      },
-      (error) => {
-        console.error("Location Error:", error);
-        setMessage("❌ Location nahi mil payi. Kripya GPS/Location on karein aur permission dein.");
-        setIsGettingLocation(false);
-      },
-      { enableHighAccuracy: true } 
-    );
+        return;
+      }
+
+      // 2. Asli GPS coordinates nikalna
+      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+      
+      setAddress((prevAddress) => prevAddress + (prevAddress ? "\n\n" : "") + "📍 Live Location: " + mapLink);
+      
+      setMessage("✅ Location successfully added Click Confirm button.");
+    } catch (error) {
+      console.error("Location Error:", error);
+      setMessage("❌  Kripya phone ka GPS/Location ON karein.");
+    } finally {
+      setIsGettingLocation(false);
+    }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if(!serviceType) {

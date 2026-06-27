@@ -4,6 +4,7 @@ function TechnicianDashboard() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
   const [token, setToken] = useState(localStorage.getItem("tech_token") || "");
   const [bookings, setBookings] = useState([]);
@@ -14,6 +15,7 @@ function TechnicianDashboard() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setMessage("Checking...");
     
     // Yahan JSON ki jagah URLSearchParams hi rakhein, yeh best hai
@@ -31,19 +33,19 @@ function TechnicianDashboard() {
         body: formData.toString(),
       });
 
-      if (response.ok) {
+     if (response.ok) {
         const data = await response.json();
         localStorage.setItem("tech_token", data.access_token);
         localStorage.setItem("tech_username", username);
         setToken(data.access_token);
         setMessage(""); 
       } else {
-        // ERROR YAHAN HAI: 401 ka matlab hai username/password match nahi hua
-        // Console mein dekhein ki kya username sahi database mein hai?
         setMessage("Login Failed: Username ya Password galat hai! ❌");
       }
     } catch (error) {
       setMessage("Server connection error!");
+    } finally {
+      setIsLoading(false); // 👈 NAYI LINE: API call khatam hote hi spinner OFF
     }
   };
 
@@ -209,7 +211,26 @@ function TechnicianDashboard() {
               <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="••••••••"/>
             </div>
-            <button type="submit" className="w-full bg-green-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-green-700 active:scale-95">Login</button>
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className={`w-full font-bold py-3 rounded-lg shadow-md flex justify-center items-center transition-all ${
+                isLoading 
+                  ? "bg-green-400 cursor-not-allowed text-white" 
+                  : "bg-green-600 hover:bg-green-700 active:scale-95 text-white"
+              }`}
+            >
+              {isLoading ? (
+                /* 🔄 Ghoomne wala Spinner */
+                <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              ) : (
+                /* Normal Text */
+                "Login"
+              )}
+            </button>
           </form>
           {message && <p className="text-red-500 font-bold text-center mt-4 bg-red-50 p-2 rounded">{message}</p>}
         </div>
@@ -217,17 +238,32 @@ function TechnicianDashboard() {
     );
   }
 
-  // 👇 NAAM AUR KAMAI KA CALCULATION
+  // 👇 NAAM AUR KAMAI KA CALCULATION (100% FIXED)
   const loggedInTech = localStorage.getItem("tech_username") || "Sahayak";
-  const todayDate = new Date().toISOString().split('T')[0];
   
+  // 1. India (Local time) ke hisaab se aaj ki date nikalein
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayDate = `${year}-${month}-${day}`; 
+
   const todaysEarnings = (Array.isArray(bookings) ? bookings : [])
-    .filter(b => 
-      (b.status === 'Completed' || b.status === 'Verified') && 
-      b.assigned_technician === loggedInTech && 
-      (b.created_at ? b.created_at.split('T')[0] === todayDate : false)
-    )
-    .reduce((sum, b) => sum + (Number(b.final_amount) || 0), 0);
+    .filter(b => {
+      // 2. Sirf Completed aur Verified bookings hi ginen
+      if (b.status !== 'Completed' && b.status !== 'Verified') return false;
+
+      // 3. Date check: Hum pehle updated_at (Kaam khatam hone ka time) check karenge.
+      const targetDateString = b.updated_at || b.created_at || "";
+      const targetDate = targetDateString.split('T')[0];
+      
+      return targetDate === todayDate;
+    })
+    .reduce((sum, b) => {
+      // 4. Paisa safely add karein: Agar final_amount null hai, toh base price use karein
+      const paisa = Number(b.final_amount) || Number(b.price) || 0;
+      return sum + paisa;
+    }, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10 font-sans">
@@ -359,7 +395,7 @@ function TechnicianDashboard() {
                     />
                   </div>
                   
-                  <p className="text-center text-[10px] text-gray-400 mb-1">(Hidden OTP for Testing: {booking.completion_otp || booking.otp})</p>
+                  <p className="text-center text-[10px] text-gray-400 mb-1"></p>
                   
                   <div className="flex gap-2 mb-4">
                     <input 
