@@ -397,16 +397,16 @@ function TechnicianDashboard() {
                   
                   <p className="text-center text-[10px] text-gray-400 mb-1"></p>
                   
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 w-full">
                     <input 
                       type="number" 
-                      placeholder="Customer OTP" 
-                      className="flex-1 px-4 py-3 rounded-lg border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 text-center font-bold tracking-widest text-lg"
+                      placeholder="Enter OTP" 
+                      className="flex-1 min-w-0 w-full px-2 py-3 rounded-lg border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 text-center font-bold tracking-widest text-base md:text-lg"
                       value={enteredOtps[booking.id] || ""}
                       onChange={(e) => setEnteredOtps({...enteredOtps, [booking.id]: e.target.value})}
                     />
                     <button 
-                      className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-lg shadow-sm active:scale-95 transition-transform"
+                      className="flex-shrink-0 whitespace-nowrap bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 md:px-6 py-3 rounded-lg shadow-sm active:scale-95 transition-transform"
                       onClick={() => handleCompleteWork(booking.id)}
                     >
                       Verify

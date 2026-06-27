@@ -128,8 +128,9 @@ const LoginPage = () => {
 
             <div>
               <label className="block mb-2 font-bold text-gray-700">Phone Number</label>
-              <div className="flex relative">
-                <span className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-bold">
+              {/* Naya Flex Container: Border bahar lagaya hai taaki over-flow na ho */}
+              <div className="flex w-full overflow-hidden rounded-xl border border-gray-300 focus-within:ring-2 focus-within:ring-black bg-white">
+                <span className="inline-flex items-center justify-center px-4 bg-gray-50 text-gray-500 font-bold border-r border-gray-300 flex-shrink-0">
                   +91
                 </span>
                 <input 
@@ -138,7 +139,7 @@ const LoginPage = () => {
                   onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} 
                   maxLength="10"
                   required 
-                  className="flex-1 p-3.5 rounded-r-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black font-bold text-lg tracking-wide" 
+                  className="flex-1 w-full min-w-0 p-3.5 focus:outline-none font-bold text-lg tracking-wide bg-transparent" 
                   placeholder="98765 43210" 
                 />
               </div>
