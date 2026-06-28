@@ -7,33 +7,71 @@ const MyBookings = () => {
   const userName = localStorage.getItem('userName');
   const userPhone = localStorage.getItem('userPhone');
 
-  // NAYA: Asli data save karne ke liye state
   const [myPastBookings, setMyPastBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // NAYA: Page khulte hi Backend se data laane ka Engine
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (!userPhone) return;
-      
-      try {
-        // FastAPI backend ko call lagana
-        const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/customer/${userPhone}`);
-        if (response.ok) {
-          const data = await response.json();
-          setMyPastBookings(data); // Asli data state mein save kar diya
-        } else {
-          console.error("Data laane mein dikkat hui");
-        }
-      } catch (error) {
-        console.error("Backend server se connect nahi ho paya:", error);
-      } finally {
-        setIsLoading(false); // Loading animation band karo
+  // 👇 NAYA STEP 1: fetchBookings ko bahar nikal diya taaki Cancel hone par refresh kar sakein 👇
+  const fetchBookings = async () => {
+    if (!userPhone) return;
+    
+    try {
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/customer/${userPhone}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMyPastBookings(Array.isArray(data) ? data.reverse() : []);
+      } else {
+        console.error("Data laane mein dikkat hui");
       }
-    };
+    } catch (error) {
+      console.error("Backend server se connect nahi ho paya:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBookings();
   }, [userPhone]);
+
+  // 👇 NAYA STEP 2: Cancel karne ka Smart Engine 👇
+  const handleCancelBooking = async (bookingId, currentStatus) => {
+    if (currentStatus === 'Completed' || currentStatus === 'Verified' || currentStatus === 'Cancelled') {
+      alert("❌ Ye service ab cancel nahi ho sakti!");
+      return;
+    }
+
+    // Warning Message logic
+    let warningMessage = "Kya aap sach mein ye booking cancel karna chahte hain?";
+    if (currentStatus === 'Accepted') {
+      warningMessage = "⚠️ Technician aapki duty accept karke nikal chuka hai. Kya aap abhi bhi cancel karna chahte hain?";
+    }
+
+    const confirmCancel = window.confirm(warningMessage);
+    if (!confirmCancel) return;
+
+    try {
+      const customerToken = localStorage.getItem('token'); 
+      const response = await fetch(`https://vsetu-backend.onrender.com/api/bookings/${bookingId}/cancel`, {
+        method: "PUT",
+        headers: { 
+          "Authorization": `Bearer ${customerToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        alert("✅ Booking successfully cancel ho gayi hai!");
+        fetchBookings(); // Data wapas laao taaki button gayab ho jaye aur status change ho jaye
+      } else {
+        const errData = await response.json();
+        alert(`Error: ${errData.detail || "Cancel nahi ho paya"} ❌`);
+      }
+    } catch (error) {
+      console.error("Cancellation Error:", error);
+      alert("Server error! Backend check karein.");
+    }
+  };
+  // 👆 ------------------------------------------ 👆
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans text-gray-800">
@@ -61,7 +99,6 @@ const MyBookings = () => {
             Aapki bookings dhoondh rahe hain... ⏳
           </div>
         ) : myPastBookings.length === 0 ? (
-          /* Agar koi booking nahi mili */
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
             <span className="text-4xl block mb-3">📭</span>
             <h3 className="text-lg font-bold text-gray-800">Koi Booking Nahi Mili</h3>
@@ -74,7 +111,6 @@ const MyBookings = () => {
             </button>
           </div>
         ) : (
-          /* Asli Bookings ki List */
           <div className="space-y-4">
             {myPastBookings.map((booking) => (
               <div key={booking.id} className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -86,9 +122,11 @@ const MyBookings = () => {
                     </span>
                     <h3 className="text-xl font-bold text-black">{booking.service_name}</h3>
                   </div>
-                  {/* Status Badge */}
+                  {/* 👇 NAYA STEP 3: Cancelled Status ka Color Red kiya 👇 */}
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    booking.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                    booking.status === 'Completed' ? 'bg-green-100 text-green-700' : 
+                    booking.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                    'bg-blue-100 text-blue-700'
                   }`}>
                     {booking.status}
                   </span>
@@ -116,11 +154,8 @@ const MyBookings = () => {
                   </div>
                 </div>
 
-               {/* --- NAYA: Technician Details aur OTP --- */}
-                {booking.assigned_technician && (
+                {booking.assigned_technician && booking.status !== 'Cancelled' && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl flex flex-col gap-4 shadow-sm animate-fade-in">
-                   
-                   {/* Upar ka hissa: Naam, Photo aur Buttons */}
                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                      <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-white border border-blue-200 text-2xl rounded-full flex items-center justify-center shadow-sm">
@@ -157,7 +192,6 @@ const MyBookings = () => {
                       </div>
                     </div>
 
-                    {/* 👇👇 NAYA: STATUS KE HISAAAB SE OTP YA SUCCESS MESSAGE & PAYMENT 👇👇 */}
                     {booking.status === 'Verified' || booking.status === 'Completed' ? (
                       <div className="bg-green-50 border border-green-200 p-4 rounded-xl mt-2 shadow-sm flex flex-col items-center">
                         <p className="text-green-700 font-bold flex items-center justify-center gap-2 text-lg">
@@ -165,12 +199,10 @@ const MyBookings = () => {
                         </p>
                         <p className="text-sm text-green-600 mt-1 mb-4 font-medium text-center">VSetu chunne ke liye dhanyawad.</p>
                         
-                        {/* --- NAYA: Payment ki Mini-Receipt --- */}
                         <div className="bg-white border border-green-100 rounded-lg w-full max-w-xs p-3 flex justify-between items-center shadow-sm">
                           <span className="text-gray-600 font-bold text-xs uppercase tracking-wide">Final Payment</span>
                           <span className="text-green-700 font-black text-xl">₹ {booking.final_amount || "0"}</span>
                         </div>
-                        {/* ----------------------------------- */}
 
                       </div>
                     ) : (
@@ -179,12 +211,21 @@ const MyBookings = () => {
                         <p className="text-4xl font-black tracking-widest text-black">{booking.completion_otp || "N/A"}</p>
                       </div>
                     )}
-                    {/* 👆👆 ---------------------------------------------------- 👆👆 */}
-                    {/* 👆👆 ---------------------------------------------------- 👆👆 */}
-
                   </div>
                 )}
-                {/* ------------------------------------------------------------------ */}
+
+                {/* 👇 NAYA STEP 4: Cancel Button (Sirf Assigned ya Accepted status par dikhega) 👇 */}
+                {['Assigned', 'Accepted'].includes(booking.status) && (
+                  <div className="mt-4 border-t border-gray-100 pt-4 flex justify-end">
+                    <button
+                      onClick={() => handleCancelBooking(booking.id, booking.status)}
+                      className="px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg font-bold text-sm hover:bg-red-100 active:scale-95 transition-all shadow-sm flex items-center gap-2"
+                    >
+                      ✕ Cancel Service
+                    </button>
+                  </div>
+                )}
+                {/* 👆 ------------------------------------------------------------------------- 👆 */}
 
               </div>
             ))}
