@@ -29,7 +29,7 @@ export const startNotificationEngine = async (username) => {
     console.log('Push registration success, token: ' + token.value);
     
     // Yahan apna backend API call lagaiye
-    await fetch('YOUR_RENDER_BACKEND_URL/api/save-token', {
+    await fetch('https://vsetu-backend.onrender.com/api/save-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username, fcm_token: token.value })
