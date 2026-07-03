@@ -3,7 +3,6 @@ import { FCM } from '@capacitor-community/fcm';
 
 export const startNotificationEngine = async (username) => {
   try {
-    // 1. Permission maangna (Android 13+ ke liye bahut zaroori)
     let permStatus = await PushNotifications.checkPermissions();
 
     if (permStatus.receive === 'prompt') {
@@ -11,30 +10,31 @@ export const startNotificationEngine = async (username) => {
     }
 
     if (permStatus.receive !== 'granted') {
-      console.log('User ne notification ki permission nahi di!');
+      alert('Aapne notification permission nahi di!');
       return;
     }
 
-    // 2. Device ko OS ke sath register karna
-    await PushNotifications.register();
+    // CRASH PREVENTION: Permission milne ke baad 2 second ka wait karein
+    // taaki Android system relax aur set ho jaye, uske baad register karein.
+    setTimeout(async () => {
+        try {
+            await PushNotifications.register();
+        } catch(regErr) {
+            alert("Register fail hua: " + JSON.stringify(regErr));
+        }
+    }, 2000);
 
-    // 3. Registration successful hone par
+    // Listeners
     PushNotifications.addListener('registration', (token) => {
-        console.log('Push registration success, token: ' + token.value);
+        // Yeh alert aane ka matlab hai Firebase se app jud chuka hai (SUCCESS!)
+        alert('Jaadu chal gaya! Token mil gaya: ' + token.value.substring(0, 10) + '...');
     });
 
-    // 4. Registration mein error aane par screen par dikhana
     PushNotifications.addListener('registrationError', (error) => {
         alert('Registration Error: ' + JSON.stringify(error));
     });
 
-    // 5. Notification receive hone par
-    PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('Push received: ', notification);
-    });
-
   } catch (error) {
-    // YEH HAI HAMARA SAFETY NET (Crash hone se rokega!)
-    alert("System Error: " + JSON.stringify(error));
+    alert("Permission Error: " + JSON.stringify(error));
   }
 };
