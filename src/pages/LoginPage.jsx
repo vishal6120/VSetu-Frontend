@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // 👇 NAYA: Notification Engine ko yahan import kiya hai 👇
-import { startNotificationEngine } from '../JS/NotificationService'; 
+import { startNotificationEngine } from "../NotificationService";
 
 const LoginPage = () => {
   const [name, setName] = useState('');
