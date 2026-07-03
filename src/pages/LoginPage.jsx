@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// 👇 NAYA: Notification Engine ko yahan import kiya hai 👇
+import { startNotificationEngine } from '../JS/NotificationService'; 
 
 const LoginPage = () => {
   const [name, setName] = useState('');
@@ -10,7 +12,7 @@ const LoginPage = () => {
   const [step, setStep] = useState(1); 
   const navigate = useNavigate();
 
-  // 👇 NAYE STATES: Screen par dynamic OTP rokne aur alert dikhane ke liye 👇
+  // NAYE STATES: Screen par dynamic OTP rokne aur alert dikhane ke liye
   const [receivedOtp, setReceivedOtp] = useState(""); 
   const [showOtpAlert, setShowOtpAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +49,7 @@ const LoginPage = () => {
         console.error("Backend Error:", error);
         alert("Backend chal raha hai ya nahi ek baar terminal mein check karein!");
       } finally {
-        setIsLoading(false); // 👈 NAYI LINE: Server ka jawab aate hi spinner band (try/catch ke bilkul end mein)
+        setIsLoading(false); // Server ka jawab aate hi spinner band (try/catch ke bilkul end mein)
       }
 
     } else {
@@ -67,16 +69,20 @@ const LoginPage = () => {
       const userRole = localStorage.getItem('role');
       console.log("Logged in role:", userRole); // Debug karne ke liye console mein dekhein
 
-      // 👇 Yahan Technician ka rasta add karein
-      if (userRole === 'superadmin') {
-        navigate('/superadmin');
-      } else if (userRole === 'admin') {
-        navigate('/admin');
-      } else if (userRole === 'technician') { // Technician check
-        navigate('/technician-dashboard'); // Sahi rasta
-      } else {
-        navigate('/'); // Customer dashboard
-      }
+      // Yahan Role check karke sahi raste par bhej rahe hain
+  if (userRole === 'superadmin') {
+    startNotificationEngine('all_managers'); // <-- NAYA JODA HAI
+    navigate('/superadmin');
+  } else if (userRole === 'admin') {
+    startNotificationEngine('all_managers'); // <-- NAYA JODA HAI
+    navigate('/admin');
+  } else if (userRole === 'technician') { 
+    startNotificationEngine(phoneNumber); 
+    console.log("Notification Engine Started for technician:", phoneNumber);
+    navigate('/technician-dashboard'); 
+  } else {
+    navigate('/'); // Customer dashboard (yahan engine start nahi karna hai)
+  }
 
     } else {
       alert(`Galat OTP!`);
@@ -96,7 +102,7 @@ const LoginPage = () => {
           <p className="text-gray-500 font-medium">Log in ya Sign up karein</p>
         </div>
 
-        {/* 👇 NAYA: Green Box Code Jo Screen Par OTP Dikhayega (Sirf Step 2 me dikhega) 👇 */}
+        {/* Green Box Code Jo Screen Par OTP Dikhayega (Sirf Step 2 me dikhega) */}
         {showOtpAlert && step === 2 && (
           <div className="bg-green-50 border border-green-200 p-4 rounded-xl mb-6 text-center shadow-sm">
             <p className="text-green-700 text-xs font-bold uppercase tracking-wider mb-1">

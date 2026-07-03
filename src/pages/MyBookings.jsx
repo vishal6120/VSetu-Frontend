@@ -215,7 +215,7 @@ const MyBookings = () => {
                 )}
 
                 {/* 👇 NAYA STEP 4: Cancel Button (Sirf Assigned ya Accepted status par dikhega) 👇 */}
-                {['Assigned', 'Accepted'].includes(booking.status) && (
+                {['Pending', 'Assigned', 'Accepted'].includes(booking.status) && (
                   <div className="mt-4 border-t border-gray-100 pt-4 flex justify-end">
                     <button
                       onClick={() => handleCancelBooking(booking.id, booking.status)}
