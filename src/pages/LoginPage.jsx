@@ -79,7 +79,7 @@ const LoginPage = () => {
   } else if (userRole === 'technician') { 
     startNotificationEngine(phoneNumber); 
     console.log("Notification Engine Started for technician:", phoneNumber);
-    navigate('/technician-dashboard'); 
+    navigate('/technician'); 
   } else {
     navigate('/'); // Customer dashboard (yahan engine start nahi karna hai)
   }
