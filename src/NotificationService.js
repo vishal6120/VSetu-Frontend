@@ -25,14 +25,27 @@ export const startNotificationEngine = async (username) => {
     }, 2000);
 
     // Listeners
-    PushNotifications.addListener('registration', (token) => {
-        // Yeh alert aane ka matlab hai Firebase se app jud chuka hai (SUCCESS!)
-        alert('Jaadu chal gaya! Token mil gaya: ' + token.value.substring(0, 10) + '...');
+    PushNotifications.addListener('registration', async (token) => {
+    console.log('Push registration success, token: ' + token.value);
+    
+    // Yahan apna backend API call lagaiye
+    await fetch('YOUR_RENDER_BACKEND_URL/api/save-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, fcm_token: token.value })
     });
+});
 
-    PushNotifications.addListener('registrationError', (error) => {
-        alert('Registration Error: ' + JSON.stringify(error));
-    });
+// 2. Error aane par bas console mein dekho
+PushNotifications.addListener('registrationError', (error) => {
+    console.error('Registration Error: ', error);
+});
+
+// 3. Jab notification mile toh kya karna hai
+PushNotifications.addListener('pushNotificationReceived', (notification) => {
+    console.log('Push received: ', notification);
+    // Yahan aap local notification trigger kar sakte hain
+});
 
   } catch (error) {
     alert("Permission Error: " + JSON.stringify(error));
