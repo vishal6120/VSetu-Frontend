@@ -5,7 +5,7 @@ export const startNotificationEngine = async (username) => {
   try {
     // 1. Permission maangna (Android 13+ ke liye bahut zaroori)
     let permStatus = await PushNotifications.checkPermissions();
-    
+
     if (permStatus.receive === 'prompt') {
       permStatus = await PushNotifications.requestPermissions();
     }
@@ -15,30 +15,26 @@ export const startNotificationEngine = async (username) => {
       return;
     }
 
-    // 2. Google ke server par phone ko register karna
+    // 2. Device ko OS ke sath register karna
     await PushNotifications.register();
 
-    // 3. Jaise hi register ho jaye, apne "username" wale topic se jud jana
+    // 3. Registration successful hone par
     PushNotifications.addListener('registration', (token) => {
-      console.log('Firebase Token mil gaya:', token.value);
-      
-      FCM.subscribeTo({ topic: username })
-        .then(() => console.log(`Super! Hum topic '${username}' se jud gaye hain.`))
-        .catch((err) => console.log('Topic subscribe error:', err));
+        console.log('Push registration success, token: ' + token.value);
     });
 
-    // 4. Jab app khuli ho aur notification aaye
+    // 4. Registration mein error aane par screen par dikhana
+    PushNotifications.addListener('registrationError', (error) => {
+        alert('Registration Error: ' + JSON.stringify(error));
+    });
+
+    // 5. Notification receive hone par
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('Naya Kaam Aaya!', notification);
-      // Yahan aap chaho toh alert() ya toast dikha sakte ho
-    });
-
-    // 5. Jab user notification par click kare
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-      console.log('Notification par click hua:', notification);
+        console.log('Push received: ', notification);
     });
 
   } catch (error) {
-    console.error('Notification Engine start hone mein error:', error);
+    // YEH HAI HAMARA SAFETY NET (Crash hone se rokega!)
+    alert("System Error: " + JSON.stringify(error));
   }
 };
