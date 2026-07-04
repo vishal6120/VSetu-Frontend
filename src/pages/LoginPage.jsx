@@ -37,12 +37,15 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
+      // 👇 NAYA: Agar number admin ka hai, toh 'name' ko hi password maan lo
+      const loginPassword = phoneNumber === "9999900000" ? name : "no-password-needed";
+
       const response = await fetch("https://vsetu-backend.onrender.com/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username: phoneNumber, password: "no-password-needed" }) 
+        body: JSON.stringify({ username: phoneNumber, password: loginPassword }) 
       });
 
       // ✅ IS NAYE HISSE KO WAHAN PASTE KARO:
