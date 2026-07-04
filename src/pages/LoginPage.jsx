@@ -43,6 +43,7 @@ const LoginPage = () => {
 
       if (response.ok) {
         const data = await response.json();
+        localStorage.setItem('role', data.role);
         setReceivedOtp(data.screen_otp);
         setShowOtpAlert(true); // Isko baad mein hata denge jab app live karni ho
         setStep(2); 
