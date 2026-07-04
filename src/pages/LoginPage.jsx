@@ -3,10 +3,14 @@ import { useNavigate } from 'react-router-dom';
 // 👇 NAYA: Notification Engine ko yahan import kiya hai 👇
 import { startNotificationEngine } from "../NotificationService";
 
+
 const LoginPage = () => {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
+
+  const [tempToken, setTempToken] = useState("");
+  const [tempRole, setTempRole] = useState("");
   
   // step 1 = Phone Number mangna, step 2 = OTP mangna
   const [step, setStep] = useState(1); 
@@ -43,7 +47,18 @@ const LoginPage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('role', data.role);
+        if (response.ok) {
+  const data = await response.json();
+  setReceivedOtp(data.screen_otp);
+  
+  // 👇 NAYA: Token aur Role ko thodi der ke liye State mein rakho
+  setTempToken(data.access_token);
+  setTempRole(data.role);
+  
+  setShowOtpAlert(true);
+  setStep(2);
+}
+       
         setReceivedOtp(data.screen_otp);
         setShowOtpAlert(true); // Isko baad mein hata denge jab app live karni ho
         setStep(2); 
@@ -69,6 +84,9 @@ const LoginPage = () => {
       localStorage.setItem('userPhone', phoneNumber);
       localStorage.setItem('userName', name);
       
+      localStorage.setItem('token', tempToken);
+      localStorage.setItem('role', tempRole);
+
       const userRole = localStorage.getItem('role');
       console.log("Logged in role:", userRole); // Debug karne ke liye console mein dekhein
 
