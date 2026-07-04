@@ -44,9 +44,7 @@ const LoginPage = () => {
       if (response.ok) {
         const data = await response.json();
         setReceivedOtp(data.screen_otp);
-         // Isko baad mein hata denge jab app live karni ho
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('role', data.role);
+        setShowOtpAlert(true); // Isko baad mein hata denge jab app live karni ho
         setStep(2); 
       } else {
         const errData = await response.json();
