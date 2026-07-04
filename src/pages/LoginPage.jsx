@@ -17,43 +17,47 @@ const LoginPage = () => {
   const [showOtpAlert, setShowOtpAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // OTP Bhejne ka function (Ab yeh backend se baat karega!)
+  // OTP Bhejne ka function (Layer 1 Security ke sath)
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    if (phoneNumber.length === 10) {
+    
+    // 👇 NAYA: Layer 1 Validation (Check for valid Indian Mobile Number)
+    // Yeh check karega ki number 10 digit ka ho AUR 6, 7, 8, 9 se shuru ho
+    const isValidIndianNumber = /^[6-9]\d{9}$/.test(phoneNumber);
 
-      setIsLoading(true);
+    if (!isValidIndianNumber) {
+      alert("❌ Kripaya ek sahi aur active Indian mobile number daalein!");
+      return; // Agar number galat hai, toh aage backend ko call mat karo
+    }
 
-      try {
-        // Hum kya kar rahe hain: Backend ke login endpoint ko call kar rahe hain
-        const response = await fetch("https://vsetu-backend.onrender.com/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ username: phoneNumber, password: "no-password-needed" }) // Username mein phone bhej rahe hain
-        });
+    setIsLoading(true);
 
-        if (response.ok) {
-          const data = await response.json();
-          setReceivedOtp(data.screen_otp);
-          setShowOtpAlert(true);
-          localStorage.setItem('token', data.access_token);
-          localStorage.setItem('role', data.role);
-          setStep(2); 
-        } else {
-          const errData = await response.json();
-          alert(errData.detail || "Yeh number ya username registered nahi hai!");
-        }
-      } catch (error) {
-        console.error("Backend Error:", error);
-        alert("Backend chal raha hai ya nahi ek baar terminal mein check karein!");
-      } finally {
-        setIsLoading(false); // Server ka jawab aate hi spinner band (try/catch ke bilkul end mein)
+    try {
+      const response = await fetch("https://vsetu-backend.onrender.com/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username: phoneNumber, password: "no-password-needed" }) 
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setReceivedOtp(data.screen_otp);
+        setShowOtpAlert(true); // Isko baad mein hata denge jab app live karni ho
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('role', data.role);
+        setStep(2); 
+      } else {
+        const errData = await response.json();
+        // Backend se aane wala Fast2SMS ka error yahan dikhega
+        alert(errData.detail || "Yeh number ya username registered nahi hai!");
       }
-
-    } else {
-      alert("Kripaya sahi 10-digit ka mobile number daalein.");
+    } catch (error) {
+      console.error("Backend Error:", error);
+      alert("Backend se sampark nahi ho pa raha hai. Kripaya apna internet check karein!");
+    } finally {
+      setIsLoading(false); 
     }
   };
 
