@@ -45,24 +45,18 @@ const LoginPage = () => {
         body: JSON.stringify({ username: phoneNumber, password: "no-password-needed" }) 
       });
 
+      // ✅ IS NAYE HISSE KO WAHAN PASTE KARO:
       if (response.ok) {
         const data = await response.json();
-        if (response.ok) {
-  const data = await response.json();
-  setReceivedOtp(data.screen_otp);
-  
-  // 👇 NAYA: Token aur Role ko thodi der ke liye State mein rakho
-  setTempToken(data.access_token);
-  setTempRole(data.role);
-  
-  setShowOtpAlert(true);
-  setStep(2);
-}
-       
+        
+        // 👇 NAYA: OTP, Token aur Role ko state mein save karein
         setReceivedOtp(data.screen_otp);
+        setTempToken(data.access_token);
+        setTempRole(data.role);
+        
         setShowOtpAlert(true); // Isko baad mein hata denge jab app live karni ho
         setStep(2); 
-      } else {
+      }else {
         const errData = await response.json();
         // Backend se aane wala Fast2SMS ka error yahan dikhega
         alert(errData.detail || "Yeh number ya username registered nahi hai!");
