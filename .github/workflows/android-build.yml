@@ -83,3 +83,15 @@ jobs:
           path: |
             VSetu_Customer.apk
             VSetu_Technician.apk
+          
+      - name: Build AAB (For Play Store)
+        run: |
+         cd android
+         chmod +x gradlew
+         ./gradlew bundleRelease
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+         name: VSetu-PlayStore-AAB
+         path: android/app/build/outputs/bundle/**/*.aab
