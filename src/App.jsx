@@ -41,6 +41,7 @@ function App() {
         
         {/* TECHNICIAN KA SAHI RASTA */}
         <Route path="/technician" element={<TechnicianDashboard />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
       <Footer />
     </BrowserRouter>
