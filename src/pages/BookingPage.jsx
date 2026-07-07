@@ -152,8 +152,8 @@ const appData = [
         tabName: "Water Tank Cleaning",
         img: "/services/tankclean.png",
         items: [
-          { name: "Plastic Tank (500L)", price: "₹400", img: "/services/tankclean.png" },
-          { name: "Plastic Tank (2 tanks of 500L)", price: "₹750", img: "/services/2tank.png" },
+          { name: "Plastic Tank (500L)", price: "₹350", img: "/services/tankclean.png" },
+          { name: "Plastic Tank (2 tanks of 500L)", price: "₹700", img: "/services/2tank.png" },
           { name: "Plastic Tank (1000L)", price: "₹500 / tank", img: "/services/1000L.png" },
           { name: "Plastic Tank (2000L)", price: "₹1000 / tank", img: "/services/200L.png" },
           { name: "Cement Tank", price: "25p - 50p / litre", img: "/services/cement.png" },
@@ -173,10 +173,10 @@ const appData = [
         img: "/services/solars.png",
         icon: "⚡",
         items: [
-           { name: "3KW Solar Cleaning", price: "₹1500 - ₹2000", img: "/services/3KW.png" },
-           { name: "5KW Solar Cleaning", price: "₹2000 - ₹3000", img: "/services/5KW.png" },
-           { name: "8KW Solar Cleaning", price: "₹3000 - ₹4500", img: "/services/8KW.png" },
-           { name: "10KW Solar Cleaning", price: "₹4500 - ₹5500", img: "/services/10KW.png" },
+           { name: "3KW Solar Cleaning", price: "₹900", img: "/services/3KW.png" },
+           { name: "5KW Solar Cleaning", price: "₹1800", img: "/services/5KW.png" },
+           { name: "8KW Solar Cleaning", price: "₹2500", img: "/services/8KW.png" },
+           { name: "10KW Solar Cleaning", price: "₹4000", img: "/services/10KW.png" },
         ]
       }
     ]
