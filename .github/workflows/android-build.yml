@@ -101,7 +101,7 @@ jobs:
   # 🔑 5. PLAY STORE KE LIYE SIGNED AAB BANANA
   # ----------------------------------------------------
       - name: Decode Keystore (Chaabi wapas banana)
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/vsetu-release.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \n\r' | base64 --decode > android/app/vsetu-release.jks
 
       - name: Build Unsigned AAB
         working-directory: ./android
