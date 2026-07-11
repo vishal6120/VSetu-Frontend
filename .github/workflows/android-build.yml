@@ -2,7 +2,7 @@ name: Build VSetu 2 APKs (Customer & Technician)
 
 on:
   push:
-    branches: [ "main" ] # Agar aapki branch ka naam 'master' hai toh isko master kar lein
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22' # Aapke screenshot ke hisaab se Node 22
+          node-version: '22'
 
       - name: Setup Java (Android ke liye zaroori)
         uses: actions/setup-java@v3
@@ -28,85 +28,20 @@ jobs:
           npm install
           npm run build
 
+      - name: Decode Keystore (Chaabi wapas banana)
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \n\r' | base64 --decode > android/app/vsetu-release.jks
+
       # ----------------------------------------------------
-      # 🛠️ 1. CUSTOMER APK BANANE KA PROCESS
+      # 🛠️ 1. CUSTOMER APK & PLAY STORE AAB BANANA
       # ----------------------------------------------------
       - name: Sync Capacitor (Customer)
         run: npx cap sync android
 
-      - name: Build Customer APK
+      - name: Build Customer APK & AAB
         working-directory: ./android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
-
-      - name: Save Customer APK file
-        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Customer.apk
-
-      # ----------------------------------------------------
-      # 🪄 2. MAGIC SHURU: GITHUB KHUD ID BADLEGA
-      # ----------------------------------------------------
-      - name: Change IDs to Technician (Auto Magic)
-        run: |
-          # 1. Config file mein ID badlo
-          sed -i 's/"appId": "com.vsetu.app"/"appId": "com.vsetu.technician"/g' capacitor.config.json
-          sed -i 's/"appName": "VSetu"/"appName": "VSetu Technician"/g' capacitor.config.json
-          
-          # 2. Android ke engine (build.gradle) mein ID badlo
-          sed -i 's/applicationId "com.vsetu.app"/applicationId "com.vsetu.technician"/g' android/app/build.gradle
-          
-          # 3. Android ke phone par dikhne wala naam badlo
-          sed -i 's/>VSetu</>VSetu Technician</g' android/app/src/main/res/values/strings.xml
-
-      # ----------------------------------------------------
-      # 🛠️ 3. TECHNICIAN APK BANANE KA PROCESS
-      # ----------------------------------------------------
-      - name: Sync Capacitor (Technician)
-        run: npx cap copy android
-
-      - name: Build Technician APK
-        working-directory: ./android
-        run: |
-          ./gradlew clean  # Purana kachra saaf karo
-          ./gradlew assembleDebug
-
-      - name: Save Technician APK file
-        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Technician.apk
-
-      # ----------------------------------------------------
-      # 📥 4. DONO APKS KO DOWNLOAD KE LIYE UPLOAD KARO
-      # ----------------------------------------------------
-      - name: Upload Both APKs
-        uses: actions/upload-artifact@v4
-        with:
-          name: VSetu-Live-APKs
-          path: |
-            VSetu_Customer.apk
-            VSetu_Technician.apk
-          
-      - name: Build AAB (For Play Store)
-        run: |
-         cd android
-         chmod +x gradlew
-         ./gradlew bundleRelease
-
-      - name: Upload AAB Artifact
-        uses: actions/upload-artifact@v4
-        with:
-         name: VSetu-PlayStore-AAB
-         path: android/app/build/outputs/bundle/**/*.aab
-
-
-         # ----------------------------------------------------
-  # 🔑 5. PLAY STORE KE LIYE SIGNED AAB BANANA
-  # ----------------------------------------------------
-      - name: Decode Keystore (Chaabi wapas banana)
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \n\r' | base64 --decode > android/app/vsetu-release.jks
-
-      - name: Build Unsigned AAB
-        working-directory: ./android
-        run: |
-          chmod +x gradlew
           ./gradlew bundleRelease
 
       - name: Sign the AAB (Digital Lock lagana)
@@ -118,6 +53,45 @@ jobs:
           android/app/build/outputs/bundle/release/app-release.aab \
           "${{ secrets.KEY_ALIAS }}"
 
+      - name: Save Customer APK file
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Customer.apk
+
+      # ----------------------------------------------------
+      # 🪄 2. MAGIC SHURU: GITHUB KHUD ID BADLEGA
+      # ----------------------------------------------------
+      - name: Change IDs to Technician (Auto Magic)
+        run: |
+          sed -i 's/"appId": "com.vsetu.app"/"appId": "com.vsetu.technician"/g' capacitor.config.json
+          sed -i 's/"appName": "VSetu"/"appName": "VSetu Technician"/g' capacitor.config.json
+          sed -i 's/applicationId "com.vsetu.app"/applicationId "com.vsetu.technician"/g' android/app/build.gradle
+          sed -i 's/>VSetu</>VSetu Technician</g' android/app/src/main/res/values/strings.xml
+
+      # ----------------------------------------------------
+      # 🛠️ 3. TECHNICIAN APK BANANE KA PROCESS
+      # ----------------------------------------------------
+      - name: Sync Capacitor (Technician)
+        run: npx cap copy android
+
+      - name: Build Technician APK
+        working-directory: ./android
+        run: |
+          ./gradlew clean  
+          ./gradlew assembleDebug
+
+      - name: Save Technician APK file
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk VSetu_Technician.apk
+
+      # ----------------------------------------------------
+      # 📥 4. SAARI FILES UPLOAD KARO
+      # ----------------------------------------------------
+      - name: Upload Both APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: VSetu-Live-APKs
+          path: |
+            VSetu_Customer.apk
+            VSetu_Technician.apk
+          
       - name: Upload Signed AAB
         uses: actions/upload-artifact@v4
         with:
